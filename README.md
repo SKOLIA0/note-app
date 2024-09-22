@@ -104,18 +104,19 @@
 
 Приложение подключается к базе данных MySQL, работающей в Docker-контейнере.
 
-**Стандартная конфигурация (`config/db.php`):**
+**Стандартная конфигурация для данного приложения (бд работает через Docker) (`config/db.php`):**
 
 ```php
 <?php
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=db;port=3306;dbname=note_management_db',
+    'dsn' => 'mysql:host=127.0.0.1;port=3307;dbname=note_management_db',
     'username' => 'user',
     'password' => 'password',
     'charset' => 'utf8',
 ];
+
 
 ```
 
