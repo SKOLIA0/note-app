@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "user".
@@ -17,7 +18,7 @@ use Yii;
  *
  * @property Note[] $notes
  */
-class User extends \yii\db\ActiveRecord
+class User extends \yii\db\ActiveRecord implements IdentityInterface
 {
     /**
      * {@inheritdoc}
@@ -49,12 +50,12 @@ class User extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'username' => 'Username',
+            'username' => 'Имя пользователя',
             'email' => 'Email',
-            'password_hash' => 'Password Hash',
-            'auth_key' => 'Auth Key',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'password_hash' => 'Хеш пароля',
+            'auth_key' => 'Ключ авторизации',
+            'created_at' => 'Создано',
+            'updated_at' => 'Обновлено',
         ];
     }
 
@@ -66,5 +67,105 @@ class User extends \yii\db\ActiveRecord
     public function getNotes()
     {
         return $this->hasMany(Note::class, ['user_id' => 'id']);
+    }
+
+    // Добавьте методы для реализации IdentityInterface
+
+    /**
+     * Находит пользователя по ID
+     *
+     * @param int|string $id
+     * @return IdentityInterface|null
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne($id);
+    }
+
+    /**
+     * Находит пользователя по access token
+     *
+     * @param string $token
+     * @param null $type
+     * @return IdentityInterface|null
+     * @throws \yii\base\NotSupportedException
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        // Если вы не используете access token, выбросьте исключение
+        throw new \yii\base\NotSupportedException('"findIdentityByAccessToken" не реализован.');
+    }
+
+    /**
+     * Возвращает ID пользователя
+     *
+     * @return int|string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Возвращает ключ авторизации
+     *
+     * @return string
+     */
+    public function getAuthKey()
+    {
+        return $this->auth_key;
+    }
+
+    /**
+     * Валидирует ключ авторизации
+     *
+     * @param string $authKey
+     * @return bool
+     */
+    public function validateAuthKey($authKey)
+    {
+        return $this->getAuthKey() === $authKey;
+    }
+
+    // Дополнительные методы
+
+    /**
+     * Находит пользователя по имени пользователя
+     *
+     * @param string $username
+     * @return static|null
+     */
+    public static function findByUsername($username)
+    {
+        return static::findOne(['username' => $username]);
+    }
+
+    /**
+     * Устанавливает хеш пароля
+     *
+     * @param string $password
+     */
+    public function setPassword($password)
+    {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    /**
+     * Валидирует пароль
+     *
+     * @param string $password
+     * @return bool
+     */
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    /**
+     * Генерирует ключ авторизации
+     */
+    public function generateAuthKey()
+    {
+        $this->auth_key = Yii::$app->security->generateRandomString();
     }
 }
