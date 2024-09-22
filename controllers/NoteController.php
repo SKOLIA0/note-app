@@ -2,11 +2,14 @@
 
 namespace app\controllers;
 
+use Yii;
 use app\models\Note;
 use app\models\NoteSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
+
 
 /**
  * NoteController implements the CRUD actions for Note model.
@@ -21,6 +24,16 @@ class NoteController extends Controller
         return array_merge(
             parent::behaviors(),
             [
+                'access' => [
+                    'class' => AccessControl::class,
+                    'only' => ['index', 'view', 'create', 'update', 'delete'],
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'roles' => ['@'], // Только авторизованные пользователи
+                        ],
+                    ],
+                ],
                 'verbs' => [
                     'class' => VerbFilter::className(),
                     'actions' => [
@@ -40,6 +53,9 @@ class NoteController extends Controller
     {
         $searchModel = new NoteSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
+
+        // Ограничиваем заметки только для текущего пользователя
+        $dataProvider->query->andWhere(['user_id' => Yii::$app->user->id]);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -68,6 +84,8 @@ class NoteController extends Controller
     public function actionCreate()
     {
         $model = new Note();
+        $model->user_id = Yii::$app->user->id; // Присваиваем заметку текущему пользователю
+
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
@@ -125,7 +143,8 @@ class NoteController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Note::findOne(['id' => $id])) !== null) {
+        // Ищем заметку только текущего пользователя
+        if (($model = Note::findOne(['id' => $id, 'user_id' => Yii::$app->user->id])) !== null) {
             return $model;
         }
 
