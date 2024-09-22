@@ -30,11 +30,17 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-            'user_id',
+           // 'user_id',
             'title',
             'content:ntext',
-            'created_at',
-            'updated_at',
+            [
+                'attribute' => 'created_at',
+                'format' => ['date', 'php:d-m-Y H:i:s'], // Форматирование даты
+            ],
+            [
+                'attribute' => 'updated_at',
+                'format' => ['date', 'php:d-m-Y H:i:s'], // Форматирование даты
+            ],
         ],
     ]) ?>
 
