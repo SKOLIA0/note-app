@@ -21,8 +21,6 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Create Note', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
-
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
@@ -30,9 +28,20 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-         //   'user_id',
-            'title',
-            'content:ntext',
+            //   'user_id',
+            [
+                'attribute' => 'title',
+                'value' => function ($model) {
+                    return Html::encode($model->title); // Экранируем заголовок
+                },
+            ],
+            [
+                'attribute' => 'content',
+                'value' => function ($model) {
+                    return Html::encode($model->content); // Экранируем содержимое
+                },
+                'format' => 'ntext',
+            ],
             [
                 'attribute' => 'created_at',
                 'format' => ['date', 'php:d-m-Y H:i:s'], // Форматирование даты
@@ -42,10 +51,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 'class' => ActionColumn::className(),
                 'urlCreator' => function ($action, Note $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
-                 }
+                }
             ],
         ],
     ]); ?>
-
 
 </div>

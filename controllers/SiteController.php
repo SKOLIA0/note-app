@@ -67,8 +67,16 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        // Проверяем, авторизован ли пользователь
+        if (Yii::$app->user->isGuest) {
+            // Если пользователь не авторизован, перенаправляем его на страницу входа
+            return $this->redirect(['site/login']);
+        } else {
+            // Если пользователь авторизован, перенаправляем его на страницу заметок
+            return $this->redirect(['note/index']);
+        }
     }
+
 
     /**
      * Регистрация нового пользователя.

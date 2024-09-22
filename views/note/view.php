@@ -30,9 +30,16 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-           // 'user_id',
-            'title',
-            'content:ntext',
+            // 'user_id',
+            [
+                'attribute' => 'title',
+                'value' => Html::encode($model->title), // Экранируем заголовок
+            ],
+            [
+                'attribute' => 'content',
+                'value' => Html::encode($model->content), // Экранируем содержимое заметки
+                'format' => 'ntext',
+            ],
             [
                 'attribute' => 'created_at',
                 'format' => ['date', 'php:d-m-Y H:i:s'], // Форматирование даты
